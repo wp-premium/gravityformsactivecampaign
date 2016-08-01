@@ -1,6 +1,6 @@
 <?php
 	
-	class ActiveCampaign {
+	class GF_ActiveCampaign_API {
 		
 		function __construct( $api_url, $api_key = null ) {
 			
@@ -52,7 +52,7 @@
 			/* If WP_Error, die. Otherwise, return decoded JSON. */
 			if ( is_wp_error( $response ) ) {
 				
-				die( 'Request failed. '. $response->get_error_messages() );
+				die( 'Request failed. '. $response->get_error_message() );
 				
 			} else {
 				

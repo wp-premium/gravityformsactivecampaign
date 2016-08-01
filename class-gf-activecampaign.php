@@ -5,7 +5,7 @@ GFForms::include_feed_addon_framework();
 class GFActiveCampaign extends GFFeedAddOn {
 
 	protected $_version = GF_ACTIVECAMPAIGN_VERSION;
-	protected $_min_gravityforms_version = '1.9.11';
+	protected $_min_gravityforms_version = '1.9.14.26';
 	protected $_slug = 'gravityformsactivecampaign';
 	protected $_path = 'gravityformsactivecampaign/activecampaign.php';
 	protected $_full_path = __FILE__;
@@ -136,6 +136,19 @@ class GFActiveCampaign extends GFFeedAddOn {
 		if ( isset( $feed['meta']['double_optin_form'] ) ) {
 			$contact['form'] = $feed['meta']['double_optin_form'];
 		}
+
+		/**
+		 * Allows the contact properties to be overridden before the contact_sync request is sent to the API.
+		 *
+		 * @param array $contact The contact properties.
+		 * @param array $entry The entry currently being processed.
+		 * @param array $form The form object the current entry was created from.
+		 * @param array $feed The feed which is currently being processed.
+		 *
+		 * @since 1.3.5
+		 */
+		$contact = apply_filters( 'gform_activecampaign_contact_pre_sync', $contact, $entry, $form, $feed );
+		$contact = apply_filters( 'gform_activecampaign_contact_pre_sync_' . $form['id'], $contact, $entry, $form, $feed );
 
 		/* Sync the contact. */
 		$this->log_debug( __METHOD__ . '(): Contact to be added => ' . print_r( $contact, true ) );
@@ -274,6 +287,18 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		return $this->initialize_api();
 
+	}
+
+	/**
+	 * Enable feed duplication.
+	 * 
+	 * @access public
+	 * @return bool
+	 */
+	public function can_duplicate_feed( $id ) {
+		
+		return true;
+		
 	}
 
 	/**
@@ -761,7 +786,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 		}
 
 		/* Load the ActiveCampaign API library. */
-		require_once 'includes/class-activecampaign.php';
+		require_once 'includes/class-gf-activecampaign-api.php';
 
 		/* Get the plugin settings */
 		$settings = $this->get_plugin_settings();
@@ -773,7 +798,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		$this->log_debug( __METHOD__ . "(): Validating API info for {$settings['api_url']} / {$settings['api_key']}." );
 
-		$activecampaign = new ActiveCampaign( $settings['api_url'], $settings['api_key'] );
+		$activecampaign = new GF_ActiveCampaign_API( $settings['api_url'], $settings['api_key'] );
 
 		try {
 

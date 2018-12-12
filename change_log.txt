@@ -1,4 +1,29 @@
 -----------------------------------------------------------
+1.5
+    - Added filter to prevent mapped, blank fields from overriding existing data.
+    	Example:
+    	add_filter( 'gform_activecampaign_override_empty_fields', '__return_true' );
+
+	- Added filter do allow different field types to be mapped to Active Campaign's email field.
+		Example:
+		add_filter( 'gform_activecampaign_supported_field_types_email_map', function( $field_types ) {
+        	return array( 'email', 'hidden', 'text' );
+        });
+
+	- Added filter to change the timeout value when sending requests to Active Campaign and updated default value to 20 seconds.
+		Example:
+		add_filter( 'gform_activecampaign_request_timeout', function(){ return 30; //Changes timeout to 30 seconds } );
+
+	- Added security enhancements.
+	- Added GPL to plugin header.
+	- Updated feed setting styles.
+	- Updated Plugin URI and Author URI to use https.
+    - Updated feed list to prevent feed creation when valid API URL is not provided.
+    - Fixed issue where non-mapped fields would override existing data with blank values.
+	- Fixed strings for translations.
+    - Fixed PHP notice when editing a feed when no ActiveCampaign forms are available.
+
+-----------------------------------------------------------
 1.4
     - Added the gform_activecampaign_contact_pre_sync filter for overriding the contact properties before sending them to ActiveCampaign.
 	- Added feed duplication support.
@@ -36,7 +61,7 @@
 1.1
 	- Added Double Opt-In support.
 	- Added Spanish (es_ES) translation.
-  
+
 -----------------------------------------------------------
 1.0
 	- It's all new!

@@ -1,34 +1,164 @@
 <?php
 
+// don't load directly
+if ( ! defined( 'ABSPATH' ) ) {
+	die();
+}
+
 GFForms::include_feed_addon_framework();
 
+/**
+ * Gravity Forms ActiveCampaign Add-On.
+ *
+ * @since     1.0
+ * @package   GravityForms
+ * @author    Rocketgenius
+ * @copyright Copyright (c) 2016, Rocketgenius
+ */
 class GFActiveCampaign extends GFFeedAddOn {
 
-	protected $_version = GF_ACTIVECAMPAIGN_VERSION;
-	protected $_min_gravityforms_version = '1.9.14.26';
-	protected $_slug = 'gravityformsactivecampaign';
-	protected $_path = 'gravityformsactivecampaign/activecampaign.php';
-	protected $_full_path = __FILE__;
-	protected $_url = 'http://www.gravityforms.com';
-	protected $_title = 'Gravity Forms ActiveCampaign Add-On';
-	protected $_short_title = 'ActiveCampaign';
-	protected $api = null;
-	protected $_new_custom_fields = array();
+	/**
+	 * Contains an instance of this class, if available.
+	 *
+	 * @since  1.0
+	 * @access private
+	 * @var    object $_instance If available, contains an instance of this class.
+	 */
+	private static $_instance = null;
 
 	/**
-	 * Members plugin integration
+	 * Defines the version of the ActiveCampaign Add-On.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_version Contains the version, defined from activecampaign.php
+	 */
+	protected $_version = GF_ACTIVECAMPAIGN_VERSION;
+
+	/**
+	 * Defines the minimum Gravity Forms version required.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_min_gravityforms_version The minimum version required.
+	 */
+	protected $_min_gravityforms_version = '1.9.14.26';
+
+	/**
+	 * Defines the plugin slug.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_slug The slug used for this plugin.
+	 */
+	protected $_slug = 'gravityformsactivecampaign';
+
+	/**
+	 * Defines the main plugin file.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_path The path to the main plugin file, relative to the plugins folder.
+	 */
+	protected $_path = 'gravityformsactivecampaign/activecampaign.php';
+
+	/**
+	 * Defines the full path to this class file.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_full_path The full path.
+	 */
+	protected $_full_path = __FILE__;
+
+	/**
+	 * Defines the URL where this Add-On can be found.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string The URL of the Add-On.
+	 */
+	protected $_url = 'http://www.gravityforms.com';
+
+	/**
+	 * Defines the title of this Add-On.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_title The title of the Add-On.
+	 */
+	protected $_title = 'Gravity Forms ActiveCampaign Add-On';
+
+	/**
+	 * Defines the short title of the Add-On.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_short_title The short title.
+	 */
+	protected $_short_title = 'ActiveCampaign';
+
+	/**
+	 * Defines if Add-On should use Gravity Forms servers for update data.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    bool
+	 */
+	protected $_enable_rg_autoupgrade = true;
+	/**
+	 * Defines the capability needed to access the Add-On settings page.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_capabilities_settings_page The capability needed to access the Add-On settings page.
+	 */
+	protected $_capabilities_settings_page = 'gravityforms_activecampaign';
+
+	/**
+	 * Defines the capability needed to access the Add-On form settings page.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_capabilities_form_settings The capability needed to access the Add-On form settings page.
+	 */
+	protected $_capabilities_form_settings = 'gravityforms_activecampaign';
+
+	/**
+	 * Defines the capability needed to uninstall the Add-On.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    string $_capabilities_uninstall The capability needed to uninstall the Add-On.
+	 */
+	protected $_capabilities_uninstall = 'gravityforms_activecampaign_uninstall';
+
+	/**
+	 * Defines the capabilities needed for the Post Creation Add-On
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    array $_capabilities The capabilities needed for the Add-On
 	 */
 	protected $_capabilities = array( 'gravityforms_activecampaign', 'gravityforms_activecampaign_uninstall' );
 
 	/**
-	 * Permissions
+	 * Stores an instance of the ActiveCampaign API library, if initialized.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    object $api If initialized, an instance of the ActiveCampaign API library.
 	 */
-	protected $_capabilities_settings_page = 'gravityforms_activecampaign';
-	protected $_capabilities_form_settings = 'gravityforms_activecampaign';
-	protected $_capabilities_uninstall = 'gravityforms_activecampaign_uninstall';
-	protected $_enable_rg_autoupgrade = true;
+	protected $api = null;
 
-	private static $_instance = null;
+	/**
+	 * New ActiveCampaign fields that need to be created when saving feed.
+	 *
+	 * @since  1.0
+	 * @access protected
+	 * @var    object $api When saving feed, new ActiveCampaign fields that need to be created.
+	 */
+	protected $_new_custom_fields = array();
 
 	/**
 	 * Get an instance of this class.
@@ -37,7 +167,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 	 */
 	public static function get_instance() {
 
-		if ( self::$_instance == null ) {
+		if ( null === self::$_instance ) {
 			self::$_instance = new GFActiveCampaign();
 		}
 
@@ -77,10 +207,6 @@ class GFActiveCampaign extends GFFeedAddOn {
 		/* Setup contact array. */
 		$contact = array(
 			'email'      => $this->get_field_value( $form, $entry, rgar( $mapped_fields, 'email' ) ),
-			'first_name' => $this->get_field_value( $form, $entry, rgar( $mapped_fields, 'first_name' ) ),
-			'last_name'  => $this->get_field_value( $form, $entry, rgar( $mapped_fields, 'last_name' ) ),
-			'phone'      => $this->get_field_value( $form, $entry, rgar( $mapped_fields, 'phone' ) ),
-			'orgname'    => $this->get_field_value( $form, $entry, rgar( $mapped_fields, 'orgname' ) ),
 		);
 
 		/* If the email address is invalid or empty, exit. */
@@ -89,6 +215,34 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 			return;
 		}
+
+		/**
+		 * Prevent empty form fields from erasing values already stored in Active Campaign
+		 * when updating an existing subscriber.
+		 *
+		 * @since 1.5
+		 *
+		 * @param bool  $override If blank fields should override values already stored in Active Campaign
+		 * @param array $form     The form object.
+		 * @param array $entry    The entry object.
+		 * @param array $feed     The feed object.
+		 */
+		$override_empty_fields = gf_apply_filters( 'gform_activecampaign_override_empty_fields', array( $form['id'] ), true, $form, $entry, $feed );
+
+
+		/* Assiging properties that have been mapped */
+		$properties = array( 'first_name','last_name','phone','orgname' );
+		foreach ( $properties as $property ) {
+			$field_value = $this->get_field_value( $form, $entry, rgar( $mapped_fields, $property ) );
+			$is_mapped = ! rgempty( $property, $mapped_fields );
+
+			/* Only send fields that are mapped. Also, make sure blank values are ok to override existing data */
+			if ( $is_mapped && ( $override_empty_fields || ! empty( $field_value ) ) ) {
+				$contact[ $property ] = $field_value;
+			}
+		}
+
+
 
 		/* Prepare tags. */
 		if ( rgars( $feed, 'meta/tags' ) ) {
@@ -109,13 +263,13 @@ class GFActiveCampaign extends GFFeedAddOn {
 		if ( is_array( $custom_fields ) ) {
 			foreach ( $feed['meta']['custom_fields'] as $custom_field ) {
 
-				if ( rgblank( $custom_field['key'] ) || $custom_field['key'] == 'gf_custom' || rgblank( $custom_field['value'] ) ) {
+				if ( rgblank( $custom_field['key'] ) || 'gf_custom' === $custom_field['key'] || rgblank( $custom_field['value'] ) ) {
 					continue;
 				}
 
 				$field_value = $this->get_field_value( $form, $entry, $custom_field['value'] );
 
-				if ( rgblank( $field_value ) ) {
+				if ( rgblank( $field_value ) && ! $override_empty_fields ) {
 					continue;
 				}
 
@@ -125,7 +279,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 		}
 
 		/* Set instant responders flag if needed. */
-		if ( $feed['meta']['instant_responders'] == 1 ) {
+		if ( 1 == $feed['meta']['instant_responders'] ) {
 			$contact[ 'instantresponders[' . $list_id . ']' ] = $feed['meta']['instant_responders'];
 		}
 
@@ -202,15 +356,15 @@ class GFActiveCampaign extends GFFeedAddOn {
 				'version' => $this->_version,
 				'enqueue' => array(
 					array( 'admin_page' => array( 'form_settings' ) ),
-				)
-			)
+				),
+			),
 		);
 
 		return array_merge( parent::styles(), $styles );
 
 	}
 
-	// ------- Plugin settings -------
+	// # PLUGIN SETTINGS -----------------------------------------------------------------------------------------------
 
 	/**
 	 * Configures the settings which should be rendered on the add-on settings tab.
@@ -259,7 +413,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		$description = '<p>';
 		$description .= sprintf(
-			esc_html__( 'ActiveCampaign makes it easy to send email newsletters to your customers, manage your subscriber lists, and track campaign performance. Use Gravity Forms to collect customer information and automatically add them to your ActiveCampaign list. If you don\'t have a ActiveCampaign account, you can %1$s sign up for one here.%2$s', 'gravityformsactivecampaign' ),
+			esc_html__( 'ActiveCampaign makes it easy to send email newsletters to your customers, manage your subscriber lists, and track campaign performance. Use Gravity Forms to collect customer information and automatically add it to your ActiveCampaign list. If you don\'t have an ActiveCampaign account, you can %1$ssign up for one here.%2$s', 'gravityformsactivecampaign' ),
 			'<a href="http://www.activecampaign.com/" target="_blank">', '</a>'
 		);
 		$description .= '</p>';
@@ -291,14 +445,14 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 	/**
 	 * Enable feed duplication.
-	 * 
+	 *
 	 * @access public
 	 * @return bool
 	 */
 	public function can_duplicate_feed( $id ) {
-		
+
 		return true;
-		
+
 	}
 
 	/**
@@ -546,13 +700,29 @@ class GFActiveCampaign extends GFFeedAddOn {
 	 */
 	public function fields_for_feed_mapping() {
 
+		$email_field = array(
+			'name'       => 'email',
+			'label'      => esc_html__( 'Email Address', 'gravityformsactivecampaign' ),
+			'required'   => true,
+			'tooltip'  => '<h6>' . esc_html__( 'Email Field Mapping', 'gravityformsactivecampaign' ) . '</h6>' . sprintf( esc_html__( 'Only email and hidden fields are available to be mapped. To add support for other field types, visit %sour documentation site%s', 'gravityformsactivecampaign' ), '<a href="https://docs.gravityforms.com/category/activecampaign/">', '</a>' ),
+		);
+
+		/**
+		 * Allows the list of supported fields types for the email field map to be changed.
+		 * Return an array of field types or true (to allow all field types)
+		 *
+		 * @since 1.5
+		 *
+		 * @param array|bool $field_types Array of field types or "true" for all field types.
+		 */
+		$field_types = apply_filters( 'gform_activecampaign_supported_field_types_email_map', array( 'email', 'hidden' ) );
+
+		if ( $field_types !== true & is_array( $field_types ) ) {
+			$email_field['field_type'] = $field_types;
+		}
+
 		return array(
-			array(
-				'name'       => 'email',
-				'label'      => esc_html__( 'Email Address', 'gravityformsactivecampaign' ),
-				'required'   => true,
-				'field_type' => array( 'email', 'hidden' )
-			),
+			$email_field,
 			array(
 				'name'     => 'first_name',
 				'label'    => esc_html__( 'First Name', 'gravityformsactivecampaign' ),
@@ -650,7 +820,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 		/* Add "Add Custom Field" to array. */
 		$fields[] = array(
 			'label' => esc_html__( 'Add Custom Field', 'gravityformsactivecampaign' ),
-			'value' => 'gf_custom'
+			'value' => 'gf_custom',
 		);
 
 		return $fields;
@@ -666,38 +836,42 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		$forms = array(
 			array(
-				'label' => '',
-				'value' => ''
-			)
+				'label' => esc_html__( 'Select a Form', 'gravityformsactivecampaign' ),
+				'value' => '',
+			),
 		);
 
-		/* If ActiveCampaign API credentials are invalid, return the forms array. */
+		// If ActiveCampaign API credentials are invalid, return the forms array.
 		if ( ! $this->initialize_api() ) {
 			return $forms;
 		}
 
-		/* Get list ID. */
+		// Get list ID.
 		$current_feed = $this->get_current_feed();
 		$list_id      = rgpost( '_gaddon_setting_list' ) ? rgpost( '_gaddon_setting_list' ) : $current_feed['meta']['list'];
 
-		/* Get available ActiveCampaign forms. */
+		// Get available ActiveCampaign forms.
 		$ac_forms = $this->api->get_forms();
 
-		/* Add ActiveCampaign forms to array and return it. */
-		foreach ( $ac_forms as $form ) {
+		// Add ActiveCampaign forms to array and return it.
+		if ( ! empty( $ac_forms ) ) {
 
-			if ( ! is_array( $form ) ) {
-				continue;
+			foreach ( $ac_forms as $form ) {
+
+				if ( ! is_array( $form ) ) {
+					continue;
+				}
+
+				if ( $form['sendoptin'] == 0 || ! is_array( $form['lists'] ) || ! in_array( $list_id, $form['lists'] ) ) {
+					continue;
+				}
+
+				$forms[] = array(
+					'label' => $form['name'],
+					'value' => $form['id'],
+				);
+
 			}
-
-			if ( $form['sendoptin'] == 0 || ! is_array( $form['lists'] ) || ! in_array( $list_id, $form['lists'] ) ) {
-				continue;
-			}
-
-			$forms[] = array(
-				'label' => $form['name'],
-				'value' => $form['id']
-			);
 
 		}
 
@@ -796,6 +970,12 @@ class GFActiveCampaign extends GFFeedAddOn {
 			return null;
 		}
 
+		// Test API URL.
+		$valid_api_url = $this->has_valid_api_url( $settings['api_url'] );
+		if ( ! $valid_api_url ) {
+			return false;
+		}
+
 		$this->log_debug( __METHOD__ . "(): Validating API info for {$settings['api_url']} / {$settings['api_key']}." );
 
 		$activecampaign = new GF_ActiveCampaign_API( $settings['api_url'], $settings['api_key'] );
@@ -852,7 +1032,6 @@ class GFActiveCampaign extends GFFeedAddOn {
 		}
 
 		/* Return validity based on content type. */
-
 		return ( strpos( $response['headers']['content-type'], 'application/json' ) !== false );
 
 	}

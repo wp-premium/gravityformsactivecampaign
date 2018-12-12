@@ -1,14 +1,17 @@
-#gaddon-setting-row-fields > td { 
+#gaddon-setting-row-fields > td {
 	padding-bottom: 0;
 }
 
-#gaddon-setting-row-custom_fields > td,
-#gaddon-setting-row-custom_fields .repeater th { 
-	padding-top: 0;
+#gaddon-setting-row-custom_fields > td{
+	padding-top: 0px;
 }
 
 #gaddon-setting-row-custom_fields .repeater th {
-	width: 210px;
+	padding-top: 2px;
+}
+
+#gaddon-setting-row-custom_fields .repeater th {
+	width: 220px;
 }
 
 #gaddon-setting-row-fields td select,

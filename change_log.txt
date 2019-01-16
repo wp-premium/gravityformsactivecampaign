@@ -1,4 +1,10 @@
 -----------------------------------------------------------
+1.6
+	- Added support for adding notes to contacts.
+	- Updated feed settings with improvements to user experience.
+	- Fixed issue where field values hidden by conditional logic were overriding visible values when mapped to the same Active Campaign field.
+
+-----------------------------------------------------------
 1.5
     - Added filter to prevent mapped, blank fields from overriding existing data.
     	Example:

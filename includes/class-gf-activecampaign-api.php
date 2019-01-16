@@ -174,7 +174,6 @@ class GF_ActiveCampaign_API {
 
 	}
 
-
 	/**
 	 * Add or edit a contact.
 	 *
@@ -190,4 +189,17 @@ class GF_ActiveCampaign_API {
 
 	}
 
+	/**
+	 * Add note to contact.
+	 */
+	function add_note( $contact_id, $list_id, $note ) {
+
+		$request = array(
+			'id'     => $contact_id,
+			'listid' => $list_id,
+			'note'   => $note
+		);
+
+		return $this->make_request( 'contact_note_add', $request, 'POST' );
+	}
 }

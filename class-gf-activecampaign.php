@@ -273,7 +273,15 @@ class GFActiveCampaign extends GFFeedAddOn {
 					continue;
 				}
 
-				$contact[ 'field[' . $custom_field['key'] . ',0]' ] = $field_value;
+				$contact_key = 'field[' . $custom_field['key'] . ',0]';
+
+				//If contact is already set, don't override it with fields that are hidden by conditional logic
+				$is_hidden = GFFormsModel::is_field_hidden( $form, GFFormsModel::get_field( $form, $custom_field['value'] ), array(), $entry );
+				if ( isset( $contact[ $contact_key ] ) && $is_hidden ) {
+					continue;
+				}
+
+				$contact[ $contact_key ] = $field_value;
 
 			}
 		}
@@ -311,6 +319,43 @@ class GFActiveCampaign extends GFFeedAddOn {
 		if ( $sync_contact['result_code'] == 1 ) {
 
 			$this->log_debug( __METHOD__ . "(): {$contact['email']} has been added; {$sync_contact['result_message']}." );
+
+			/* Add note. */
+			if( rgars( $feed, 'meta/note' ) ) {
+
+				$note = GFCommon::replace_variables( $feed['meta']['note'], $form, $entry, false, false, false, 'text' );
+
+				/**
+				 * Filter the note to be created for this contact.
+				 *
+				 * @since 1.6
+				 *
+				 * @param array $note {
+				 *     Properties that will be used to create and assign the note.
+				 *
+				 *     @type int    $contact_id Contact ID to associate the note with.
+				 *     @type int    $list_id    List ID to associate the note with.
+				 *     @type string $note       Actual note content. HTML will be stripped.
+				 *
+				 * }
+				 * @param array $feed  Current feed being processed.
+				 * @param array $entry Current entry object.
+				 * @param array $form  Current form object.
+				 */
+				$note = gf_apply_filters( array( 'gform_activecampaign_note', $form['id'] ), array(
+					'contact_id' => $sync_contact['subscriber_id'],
+					'list_id'    => $list_id,
+					'note'       => $note
+				), $feed, $entry, $form );
+
+				$result = $this->api->add_note( $note['contact_id'], $note['list_id'], $note['note'] );
+				if( $result['result_code'] == 1 ) {
+					$this->log_debug( sprintf( '%s(): Note has been added: %s. %s.', __METHOD__, print_r( $note, true ), $result['result_message'] ) );
+				} else {
+					$this->log_debug( sprintf( '%s(): Note was not added: %s. %s.', __METHOD__, print_r( $note, true ), $result['result_message'] ) );
+				}
+
+			}
 
 			return true;
 
@@ -519,11 +564,13 @@ class GFActiveCampaign extends GFFeedAddOn {
 		/* Build fields array. */
 		$fields = array(
 			array(
-				'name'     => 'feed_name',
-				'label'    => esc_html__( 'Feed Name', 'gravityformsactivecampaign' ),
-				'type'     => 'text',
-				'required' => true,
-				'tooltip'  => '<h6>' . esc_html__( 'Name', 'gravityformsactivecampaign' ) . '</h6>' . esc_html__( 'Enter a feed name to uniquely identify this setup.', 'gravityformsactivecampaign' )
+				'name'          => 'feed_name',
+				'label'         => esc_html__( 'Feed Name', 'gravityformsactivecampaign' ),
+				'type'          => 'text',
+				'required'      => true,
+				'default_value' => $this->get_default_feed_name(),
+				'class'         => 'medium',
+				'tooltip'       => '<h6>' . esc_html__( 'Name', 'gravityformsactivecampaign' ) . '</h6>' . esc_html__( 'Enter a feed name to uniquely identify this setup.', 'gravityformsactivecampaign' ),
 			),
 			array(
 				'name'     => 'list',
@@ -553,6 +600,13 @@ class GFActiveCampaign extends GFFeedAddOn {
 				'name'       => 'tags',
 				'type'       => 'text',
 				'label'      => esc_html__( 'Tags', 'gravityformsactivecampaign' ),
+				'dependency' => 'list',
+				'class'      => 'medium merge-tag-support mt-position-right mt-hide_all_fields',
+			),
+			array(
+				'name'       => 'note',
+				'type'       => 'textarea',
+				'label'      => esc_html__( 'Note', 'gravityformsactivecampaign' ),
 				'dependency' => 'list',
 				'class'      => 'medium merge-tag-support mt-position-right mt-hide_all_fields',
 			)
@@ -662,7 +716,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		$lists = array(
 			array(
-				'label' => '',
+				'label' => esc_html__( 'Select a List', 'gravityformsactivecampaign' ),
 				'value' => ''
 			)
 		);
@@ -816,6 +870,15 @@ class GFActiveCampaign extends GFFeedAddOn {
 		if ( empty( $fields ) ) {
 			return $fields;
 		}
+
+		// Add standard "Select a Custom Field" option.
+		$standard_field = array(
+			array(
+				'label' => esc_html__( 'Select a Custom Field', 'gravityformsactivecampaign' ),
+				'value' => '',
+			),
+		);
+		$fields = array_merge( $standard_field, $fields );
 
 		/* Add "Add Custom Field" to array. */
 		$fields[] = array(

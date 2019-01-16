@@ -1,13 +1,13 @@
-# Copyright 2009-2018 Rocketgenius, Inc.
+# Copyright 2009-2019 Rocketgenius, Inc.
 msgid ""
 msgstr ""
-"Project-Id-Version: Gravity Forms ActiveCampaign Add-On 1.5\n"
+"Project-Id-Version: Gravity Forms ActiveCampaign Add-On 1.6\n"
 "Report-Msgid-Bugs-To: https://www.gravtiyforms.com\n"
-"POT-Creation-Date: 2018-10-02 16:22:47+00:00\n"
+"POT-Creation-Date: 2019-01-02 21:08:04+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Rocketgenius <customerservice@rocketgenius.com>\n"
 "Language-Team: Rocketgenius <customerservice@rocketgenius.com>\n"
 "X-Generator: Gravity Forms Build Server\n"
@@ -24,23 +24,23 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Textdomain-Support: yes\n"
 
-#: class-gf-activecampaign.php:338
+#: class-gf-activecampaign.php:383
 msgid "Subscribe contact to ActiveCampaign only when payment is received."
 msgstr ""
 
-#: class-gf-activecampaign.php:383
+#: class-gf-activecampaign.php:428
 msgid "API URL"
 msgstr ""
 
-#: class-gf-activecampaign.php:390
+#: class-gf-activecampaign.php:435
 msgid "API Key"
 msgstr ""
 
-#: class-gf-activecampaign.php:398
+#: class-gf-activecampaign.php:443
 msgid "ActiveCampaign settings have been updated."
 msgstr ""
 
-#: class-gf-activecampaign.php:416
+#: class-gf-activecampaign.php:461
 msgid ""
 "ActiveCampaign makes it easy to send email newsletters to your customers, "
 "manage your subscriber lists, and track campaign performance. Use Gravity "
@@ -49,141 +49,153 @@ msgid ""
 "%1$ssign up for one here.%2$s"
 msgstr ""
 
-#: class-gf-activecampaign.php:424
+#: class-gf-activecampaign.php:469
 msgid ""
 "Gravity Forms ActiveCampaign Add-On requires your API URL and API Key, "
 "which can be found in the API tab on the account settings page."
 msgstr ""
 
-#: class-gf-activecampaign.php:465
+#: class-gf-activecampaign.php:510
 msgid "%s Settings"
 msgstr ""
 
-#: class-gf-activecampaign.php:470
+#: class-gf-activecampaign.php:515
 msgid "To get started, please configure your %s."
 msgstr ""
 
-#: class-gf-activecampaign.php:473
+#: class-gf-activecampaign.php:518
 msgid "Please make sure you have entered valid API credentials on the %s page."
 msgstr ""
 
-#: class-gf-activecampaign.php:485 class-gf-activecampaign.php:526
+#: class-gf-activecampaign.php:530 class-gf-activecampaign.php:573
 msgid "Name"
 msgstr ""
 
-#: class-gf-activecampaign.php:486 class-gf-activecampaign.php:530
-#: class-gf-activecampaign.php:535
+#: class-gf-activecampaign.php:531 class-gf-activecampaign.php:577
+#: class-gf-activecampaign.php:582
 msgid "ActiveCampaign List"
 msgstr ""
 
-#: class-gf-activecampaign.php:523
+#: class-gf-activecampaign.php:568
 msgid "Feed Name"
 msgstr ""
 
-#: class-gf-activecampaign.php:526
+#: class-gf-activecampaign.php:573
 msgid "Enter a feed name to uniquely identify this setup."
 msgstr ""
 
-#: class-gf-activecampaign.php:535
+#: class-gf-activecampaign.php:582
 msgid "Select which ActiveCampaign list this feed will add contacts to."
 msgstr ""
 
-#: class-gf-activecampaign.php:539 class-gf-activecampaign.php:543
+#: class-gf-activecampaign.php:586 class-gf-activecampaign.php:590
 msgid "Map Fields"
 msgstr ""
 
-#: class-gf-activecampaign.php:543
+#: class-gf-activecampaign.php:590
 msgid ""
 "Select which Gravity Form fields pair with their respective ActiveCampaign "
 "fields."
 msgstr ""
 
-#: class-gf-activecampaign.php:555
+#: class-gf-activecampaign.php:602
 msgid "Tags"
 msgstr ""
 
-#: class-gf-activecampaign.php:568 class-gf-activecampaign.php:572
+#: class-gf-activecampaign.php:609
+msgid "Note"
+msgstr ""
+
+#: class-gf-activecampaign.php:622 class-gf-activecampaign.php:626
 msgid "Double Opt-In Form"
 msgstr ""
 
-#: class-gf-activecampaign.php:572
+#: class-gf-activecampaign.php:626
 msgid ""
 "Select which ActiveCampaign form will be used when exporting to "
 "ActiveCampaign to send the opt-in email."
 msgstr ""
 
-#: class-gf-activecampaign.php:580 class-gf-activecampaign.php:583
+#: class-gf-activecampaign.php:634 class-gf-activecampaign.php:637
 msgid "Conditional Logic"
 msgstr ""
 
-#: class-gf-activecampaign.php:583
+#: class-gf-activecampaign.php:637
 msgid ""
 "When conditional logic is enabled, form submissions will only be exported "
 "to ActiveCampaign when the condition is met. When disabled, all form "
 "submissions will be exported."
 msgstr ""
 
-#: class-gf-activecampaign.php:587
+#: class-gf-activecampaign.php:641
 msgid "Options"
 msgstr ""
 
-#: class-gf-activecampaign.php:593 class-gf-activecampaign.php:595
+#: class-gf-activecampaign.php:647 class-gf-activecampaign.php:649
 msgid "Instant Responders"
 msgstr ""
 
-#: class-gf-activecampaign.php:595
+#: class-gf-activecampaign.php:649
 msgid ""
 "When the instant responders option is enabled, ActiveCampaign will send any "
 "instant responders setup when the contact is added to the list. This option "
 "is not available to users on a free trial."
 msgstr ""
 
-#: class-gf-activecampaign.php:599 class-gf-activecampaign.php:601
+#: class-gf-activecampaign.php:653 class-gf-activecampaign.php:655
 msgid "Send the last broadcast campaign"
 msgstr ""
 
-#: class-gf-activecampaign.php:601
+#: class-gf-activecampaign.php:655
 msgid ""
 "When the send the last broadcast campaign option is enabled, ActiveCampaign "
 "will send the last campaign sent out to the list to the contact being "
 "added. This option is not available to users on a free trial."
 msgstr ""
 
-#: class-gf-activecampaign.php:705
+#: class-gf-activecampaign.php:719
+msgid "Select a List"
+msgstr ""
+
+#: class-gf-activecampaign.php:759
 msgid "Email Address"
 msgstr ""
 
-#: class-gf-activecampaign.php:707
+#: class-gf-activecampaign.php:761
 msgid "Email Field Mapping"
 msgstr ""
 
-#: class-gf-activecampaign.php:707
+#: class-gf-activecampaign.php:761
 msgid ""
 "Only email and hidden fields are available to be mapped. To add support for "
 "other field types, visit %sour documentation site%s"
 msgstr ""
 
-#: class-gf-activecampaign.php:728
+#: class-gf-activecampaign.php:782
 msgid "First Name"
 msgstr ""
 
-#: class-gf-activecampaign.php:733
+#: class-gf-activecampaign.php:787
 msgid "Last Name"
 msgstr ""
 
-#: class-gf-activecampaign.php:738
+#: class-gf-activecampaign.php:792
 msgid "Phone Number"
 msgstr ""
 
-#: class-gf-activecampaign.php:743
+#: class-gf-activecampaign.php:797
 msgid "Organization Name"
 msgstr ""
 
-#: class-gf-activecampaign.php:822
+#: class-gf-activecampaign.php:877
+msgid "Select a Custom Field"
+msgstr ""
+
+#: class-gf-activecampaign.php:885
 msgid "Add Custom Field"
 msgstr ""
 
-#: class-gf-activecampaign.php:839
+#: class-gf-activecampaign.php:902
 msgid "Select a Form"
 msgstr ""
 

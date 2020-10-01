@@ -409,6 +409,19 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 	}
 
+	/**
+	 * Return the plugin's icon for the plugin/form settings menu.
+	 *
+	 * @since 1.8
+	 *
+	 * @return string
+	 */
+	public function get_menu_icon() {
+
+		return file_get_contents( $this->get_base_path() . '/images/menu-icon.svg' );
+
+	}
+
 	// # PLUGIN SETTINGS -----------------------------------------------------------------------------------------------
 
 	/**
@@ -590,11 +603,12 @@ class GFActiveCampaign extends GFFeedAddOn {
 				'tooltip'    => '<h6>' . esc_html__( 'Map Fields', 'gravityformsactivecampaign' ) . '</h6>' . esc_html__( 'Select which Gravity Form fields pair with their respective ActiveCampaign fields.', 'gravityformsactivecampaign' )
 			),
 			array(
-				'name'       => 'custom_fields',
-				'label'      => '',
-				'type'       => 'dynamic_field_map',
-				'dependency' => 'list',
-				'field_map'  => $this->custom_fields_for_feed_setting(),
+				'name'          => 'custom_fields',
+				'label'         => '',
+				'type'          => 'dynamic_field_map',
+				'dependency'    => 'list',
+				'field_map'     => $this->custom_fields_for_feed_setting(),
+				'save_callback' => array( $this, 'create_new_custom_fields' ),
 			),
 			array(
 				'name'       => 'tags',
@@ -668,43 +682,25 @@ class GFActiveCampaign extends GFFeedAddOn {
 	}
 
 	/**
-	 * Fork of maybe_save_feed_settings to create new ActiveCampaign custom fields.
+	 * Renders and initializes a dynamic field map field based on the $field array whose choices are populated by the fields to be mapped.
+	 * (Forked to force reload of field map options.)
 	 *
-	 * @param int $feed_id The current Feed ID.
-	 * @param int $form_id The current Form ID.
+	 * @since  Unknown
 	 *
-	 * @return int
+	 * @param array $field Field array containing the configuration options of this field.
+	 * @param bool  $echo  Determines if field contents should automatically be displayed. Defaults to true.
+	 *
+	 * @return string
 	 */
-	public function maybe_save_feed_settings( $feed_id, $form_id ) {
+	public function settings_dynamic_field_map( $field, $echo = true ) {
 
-		if ( ! rgpost( 'gform-settings-save' ) ) {
-			return $feed_id;
+		// Refresh field map.
+		if ( 'custom_fields' === $field['name'] && $this->is_postback() ) {
+			$field['field_map'] = $this->custom_fields_for_feed_setting();
 		}
 
-		// store a copy of the previous settings for cases where action would only happen if value has changed
-		$feed = $this->get_feed( $feed_id );
-		$this->set_previous_settings( $feed['meta'] );
+		return parent::settings_dynamic_field_map( $field, $echo );
 
-		$settings = $this->get_posted_settings();
-		$settings = $this->create_new_custom_fields( $settings );
-		$sections = $this->get_feed_settings_fields();
-		$settings = $this->trim_conditional_logic_vales( $settings, $form_id );
-
-		$is_valid = $this->validate_settings( $sections, $settings );
-		$result   = false;
-
-		if ( $is_valid ) {
-			$feed_id = $this->save_feed_settings( $feed_id, $form_id, $settings );
-			if ( $feed_id ) {
-				GFCommon::add_message( $this->get_save_success_message( $sections ) );
-			} else {
-				GFCommon::add_error_message( $this->get_save_error_message( $sections ) );
-			}
-		} else {
-			GFCommon::add_error_message( $this->get_save_error_message( $sections ) );
-		}
-
-		return $feed_id;
 	}
 
 	/**
@@ -910,8 +906,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 		}
 
 		// Get list ID.
-		$current_feed = $this->get_current_feed();
-		$list_id      = rgpost( '_gaddon_setting_list' ) ? rgpost( '_gaddon_setting_list' ) : $current_feed['meta']['list'];
+		$list_id = $this->get_setting( 'list' );
 
 		// Get available ActiveCampaign forms.
 		$ac_forms = $this->api->get_forms();
@@ -948,23 +943,26 @@ class GFActiveCampaign extends GFFeedAddOn {
 	/**
 	 * Create new ActiveCampaign custom fields.
 	 *
-	 * @param array $settings
+	 * @since Unknown
+	 *
+	 * @param array|\Rocketgenius\Gravity_Forms\Settings\Fields\Base $field       Field object.
+	 * @param array                                                  $field_value Posted field value.
 	 *
 	 * @return array
 	 */
-	public function create_new_custom_fields( $settings ) {
+	public function create_new_custom_fields( $field = array(), $field_value = array() ) {
 
 		global $_gaddon_posted_settings;
 
-		/* If no custom fields are set or if the API credentials are invalid, return settings. */
-		if ( empty( $settings['custom_fields'] ) || ! $this->initialize_api() ) {
-			return $settings;
+		// If no custom fields are set or if the API credentials are invalid, return settings.
+		if ( empty( $field_value ) || ! $this->initialize_api() ) {
+			return $field_value;
 		}
 
-		/* Loop through each custom field. */
-		foreach ( $settings['custom_fields'] as $index => &$field ) {
+		// Loop through each custom field, add new fields.
+		foreach ( $field_value as $index => &$field ) {
 
-			/* If no custom key is set, move on. */
+			// If no custom key is set, move on.
 			if ( rgblank( $field['custom_key'] ) ) {
 				continue;
 			}
@@ -984,20 +982,20 @@ class GFActiveCampaign extends GFFeedAddOn {
 				'p[0]'  => 0
 			);
 
-			/* Add new field. */
+			// Add new field.
 			$new_field = $this->api->add_custom_field( $custom_field );
 
-			/* Replace key for field with new shortcut name and reset custom key. */
+			// Replace key for field with new shortcut name and reset custom key.
 			if ( $new_field['result_code'] == 1 ) {
 
 				$field['key']        = $new_field['fieldid'];
 				$field['custom_key'] = '';
 
-				/* Update POST field to ensure front-end display is up-to-date. */
+				// Update POST field to ensure front-end display is up-to-date.
 				$_gaddon_posted_settings['custom_fields'][ $index ]['key']        = $new_field['fieldid'];
 				$_gaddon_posted_settings['custom_fields'][ $index ]['custom_key'] = '';
 
-				/* Push to new custom fields array to update the UI. */
+				// Push to new custom fields array to update the UI.
 				$this->_new_custom_fields[] = array(
 					'label' => $custom_key,
 					'value' => $new_field['fieldid'],
@@ -1007,7 +1005,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 
 		}
 
-		return $settings;
+		return $field_value;
 
 	}
 
@@ -1029,7 +1027,7 @@ class GFActiveCampaign extends GFFeedAddOn {
 		$settings = $this->get_plugin_settings();
 
 		/* If any of the account information fields are empty, return null. */
-		if ( rgblank( $settings['api_url'] ) || rgblank( $settings['api_key'] ) ) {
+		if ( rgempty( 'api_url', $settings ) || rgempty( 'api_key', $settings ) ) {
 			return null;
 		}
 
